@@ -1,0 +1,8 @@
+<RCC>
+    <qresource prefix="/logviewer">
+        <file>icons/delete.png</file>
+        <file>icons/document.png</file>
+        <file>icons/plus-outline.png</file>
+        <file>icons/minus-outline.png</file>
+    </qresource>
+</RCC>
