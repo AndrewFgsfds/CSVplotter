@@ -1,0 +1,2 @@
+# CSVplotter
+simple CSV plotter
