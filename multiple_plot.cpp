@@ -2,6 +2,10 @@
 #include "qcustomplot.h"
 #include <iostream>
 
+const QList<QColor> MultiplePlot::kColors {
+    Qt::red,        Qt::green,  Qt::blue,
+    Qt::darkCyan,   Qt::yellow, Qt::magenta
+};
 
 MultiplePlot::MultiplePlot(const QVector<double> &timeVec,
                            const QVector<QVector<double>> &dataVec,
@@ -13,14 +17,14 @@ MultiplePlot::MultiplePlot(const QVector<double> &timeVec,
     listColumnNames_{listColumnNames}
 {
     pMainLayout_ = new QHBoxLayout();
+    pPlot_ = new QCustomPlot(this);
 
     //настраиваю шрифт и отображаю легенду
     QFont legendFont{font()};
     legendFont.setPointSize(10);
-
-    pPlot_ = new QCustomPlot(this);
     pPlot_->legend->setFont(legendFont);
     pPlot_->legend->setVisible(true);
+
     // разрешения разлчиных взаимодействий с графиком
     pPlot_->setInteractions(QCP::Interaction::iRangeDrag
                             | QCP::Interaction::iRangeZoom
@@ -70,36 +74,60 @@ void MultiplePlot::updateRangeAxisX(const QCPRange &newRange)
 void MultiplePlot::drawCursor(int index) {
     selectedIndex_ = index;
     if(pPlot_->graphCount()) {
-        if (!plotCursor_) {
-            plotCursor_ = new QCPItemStraightLine(pPlot_);
+        //рисую курсор для выбранного индекса
+        if (!pPlotCursor_) {
+            pPlotCursor_ = new QCPItemStraightLine(pPlot_);
         }
         double tmpCordX{pPlot_->graph()->data()->at(index)->key};
         double tmpCordY_1{pPlot_->yAxis->range().lower};
         double tmpCordY_2{pPlot_->yAxis->range().upper};
-        plotCursor_->point1->setCoords(tmpCordX, tmpCordY_1);
-        plotCursor_->point2->setCoords(tmpCordX, tmpCordY_2);
+        pPlotCursor_->point1->setCoords(tmpCordX, tmpCordY_1);
+        pPlotCursor_->point2->setCoords(tmpCordX, tmpCordY_2);
         std::cout << "in draw cursor" << std::endl;
+
+        //вывожу все значения по выбранному индексу:
+        if (!pPlotTextBlock_) {
+            pPlotTextBlock_ = new QCPTextElement(pPlot_, "", 10);
+        }
+        //pPlotTextBlock_->setBrush(Qt::white);
+        //pPlotTextBlock_->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
+        //pPlotTextBlock_->position->setType(QCPItemPosition::ptAxisRectRatio);
+        //pPlotTextBlock_->position->setCoords(0.5, 0); // place position at center/top of axis rect
+        //pPlotTextBlock_->setText("Text Item Demo");
+        //pPlotTextBlock_->setFont(QFont(font().family(), 10)); // make font a bit larger
+        //pPlotTextBlock_->setPen(QPen(Qt::black)); // show black border around text
+        pPlot_->axisRect()->insetLayout()->addElement(pPlotTextBlock_,
+                                                      Qt::AlignLeft
+                                                      | Qt::AlignTop);
+        QString tmpText{"Values for x = "};
+        QTextStream tmpOut(&tmpText);
+        tmpOut << pPlot_->graph()->data()->at(index)->key << "\n";
+
+        for (int i = 0; i < pPlot_->graphCount(); ++i) {
+            tmpOut << pPlot_->graph(i)->name() << " "
+                   << pPlot_->graph(i)->data()->at(index)->value
+                   << " \n";
+        }
+        pPlotTextBlock_->setText(tmpText);
         pPlot_->replot();
     }
+
 }
 
 //------------------------------------SLOTS------------------------------------
 
 void MultiplePlot::plotSelected()
 {
+    //чищу график
+    pPlot_->clearGraphs();
+
     //получаю выбранные индексы
     QList<QModelIndex> selectedIndexList{
             poListView_->selectionModel()->selectedIndexes()};
+
     int nPlot{0};
     double minValue{0};
     double maxValue{0};
-    //чищу график
-    pPlot_->clearGraphs();
-    QColor kColors[] {
-        Qt::red,        Qt::green,  Qt::blue,
-        Qt::darkCyan,   Qt::yellow, Qt::magenta
-    };
-
     for(QModelIndex iModelindex : selectedIndexList) {
         pPlot_->addGraph();
         int index{iModelindex.row()};
@@ -107,10 +135,10 @@ void MultiplePlot::plotSelected()
         pPlot_->graph(nPlot)->setName(iModelindex.data().toString());
         //устанавливаю цвет
         QPen tmpPen{};
-        if(nPlot < sizeof(kColors)) {
+        if(nPlot < kColors.size()) {
             tmpPen.setColor(kColors[nPlot]);
         } else {
-            tmpPen.setColor(Qt::black);
+            tmpPen.setColor(Qt::gray);
         }
         tmpPen.setWidth(2);
         pPlot_->graph(nPlot)->setPen(tmpPen);
@@ -137,7 +165,6 @@ void MultiplePlot::plotSelected()
     pPlot_->yAxis->setRange(minValue, maxValue);
     pPlot_->replot();
 
-    nPlot = 0;
 }
 
 void MultiplePlot::dataSelected(const QCPDataSelection &selection)

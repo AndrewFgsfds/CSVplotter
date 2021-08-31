@@ -24,6 +24,8 @@ public:
         return pPlot_->xAxis->range();
     }
 
+    static const QList<QColor> kColors;
+
 signals:
     void axisXRangeChanged(const QCPRange &newRange); //
     void itemSelected(int index);
@@ -46,7 +48,9 @@ private:
     QCustomPlot* pPlot_ = nullptr;
     QListView *poListView_ = nullptr;
     QHBoxLayout *pMainLayout_ = nullptr;
-    QCPItemStraightLine *plotCursor_ = nullptr;
+    QCPItemStraightLine *pPlotCursor_ = nullptr;
+    QCPTextElement *pPlotTextBlock_ = nullptr;
+
 };
 
 #endif // MULTIPLEPLOT_H
