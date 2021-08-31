@@ -104,8 +104,15 @@ void MainWindow::updateAllRanges(const QCPRange &newRange)
            it.get()->updateRangeAxisX(newRange);
         }
     }
+    //std::cout << "in mainwindow update ranges slot: " << newRange.lower << " " << newRange.upper << std::endl;
+}
 
-    std::cout << "in mainwindow update ranges slot: " << newRange.lower << " " << newRange.upper << std::endl;
+void MainWindow::updateCursor(int index)
+{
+    for(auto &it : vecPtrMltplPlot_) {
+        it.get()->drawCursor(index);
+    }
+    //std::cout << "in main update cursor. index: " << index << std::endl;
 }
 
 
@@ -145,11 +152,16 @@ void MainWindow::addPlot()
         new MultiplePlot(timeVec_, dataVec_, listColumnNames_, this)
     };
     vecPtrMltplPlot_.push_back(std::move(tmp));
+    //синхронизация оси X
     connect(vecPtrMltplPlot_.back().get(),
             &MultiplePlot::axisXRangeChanged,
             this,
             &MainWindow::updateAllRanges);
-
+    //выбор точки для курсора и вывода данных
+    connect(vecPtrMltplPlot_.back().get(),
+            &MultiplePlot::itemSelected,
+            this,
+            &MainWindow::updateCursor);
     pSplit_->addWidget(vecPtrMltplPlot_.back().get());
     pSplit_->refresh();
 

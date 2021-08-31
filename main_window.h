@@ -22,7 +22,8 @@ public:
 public slots:
     //принимаю сигнал о том что ось изменилась и применяю ко всем остальным графикам
     void updateAllRanges(const QCPRange &newRange);
-
+    //при выборе точки на графике обновляю положение куросора и вывожу все значения по данному индексу
+    void updateCursor(int index);
 
 private slots:
     void openFile();

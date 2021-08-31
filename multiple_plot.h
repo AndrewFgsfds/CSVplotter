@@ -18,18 +18,22 @@ public:
 
     //при обновлении одного из графиков обновляю ось X всех
     void updateRangeAxisX(const QCPRange &newRange);
+    //рисую крусор по индексу вектора с данными
+    void drawCursor(int index);
     const QCPRange getRange() const {
         return pPlot_->xAxis->range();
     }
 
 signals:
     void axisXRangeChanged(const QCPRange &newRange); //
+    void itemSelected(int index);
 
 public slots:
 
 
 private slots:
-    void replot();
+    void plotSelected();
+    void dataSelected(const QCPDataSelection & selection);
 
 private:
     void createRightWidget();
@@ -37,9 +41,12 @@ private:
     const QVector<QVector<double>> &dataVec_;
     const QStringList &listColumnNames_;
 
-    QCustomPlot* pPlot_;
-    QListView *poListView_;
-    QHBoxLayout *pMainLayout_;
+    int selectedIndex_ = 0;
+
+    QCustomPlot* pPlot_ = nullptr;
+    QListView *poListView_ = nullptr;
+    QHBoxLayout *pMainLayout_ = nullptr;
+    QCPItemStraightLine *plotCursor_ = nullptr;
 };
 
 #endif // MULTIPLEPLOT_H
