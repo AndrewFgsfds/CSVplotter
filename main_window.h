@@ -1,10 +1,12 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
+#include "qcustomplot.h"
+#include "multiple_plot.h"
+#include "plotter_settings.h"
+#include "plottable_data.h"
 
 #include <QMainWindow>
 #include <QVBoxLayout>
-#include "qcustomplot.h"
-#include "multiple_plot.h"
 #include <vector>
 #include <memory>
 
@@ -16,7 +18,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(QWidget *parent = nullptr);
+    MainWindow(PlotterSettings *ps, QWidget *parent = nullptr);
     ~MainWindow();
 
 public slots:
@@ -33,15 +35,12 @@ private slots:
 
 private:
     void createMenu();
-    void readSettings();
-    void saveSettings();
     void createToolBar();
     void createCentralWidget();
     void refreshPlots();
     bool parseFile(const QString&);
 
-    constexpr static int kColumnsInArray_{20}; //число столбцов в файле, перенести в .ini
-
+    PlotterSettings *pPlotSettings_;
     QVBoxLayout *pQlayout_ = nullptr;
     QSplitter *pSplit_ = nullptr;
     QToolBar *pTopToolBar_ = nullptr;
@@ -50,7 +49,5 @@ private:
     QVector<QVector<double>> dataVec_;
     std::vector<std::unique_ptr<MultiplePlot>> vecPtrMltplPlot_;
     QVector<double> timeVec_;
-    QStringList listColumnNames_;
-
 };
 #endif // MAINWINDOW_H

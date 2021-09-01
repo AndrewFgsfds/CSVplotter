@@ -1,5 +1,4 @@
 #include "multiple_plot.h"
-#include "qcustomplot.h"
 #include <iostream>
 
 const QList<QColor> MultiplePlot::kColors {

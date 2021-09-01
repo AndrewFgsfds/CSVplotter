@@ -20,12 +20,15 @@ SOURCES += \
     main_window.cpp \
     multiple_plot.cpp \
     parse_csv.cpp \
-    qcustomplot.cpp \
-    settings_ops.cpp
+    plottable_data.cpp \
+    plotter_settings.cpp \
+    qcustomplot.cpp
 
 HEADERS += \
     main_window.h \
     multiple_plot.h \
+    plottable_data.h \
+    plotter_settings.h \
     qcustomplot.h
 
 FORMS +=

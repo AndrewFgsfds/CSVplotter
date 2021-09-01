@@ -7,25 +7,32 @@
 #include <iostream>
 #include <QDebug>
 
-
-
-
-MainWindow::MainWindow(QWidget *parent)
+MainWindow::MainWindow(PlotterSettings *ps, QWidget *parent)
     : QMainWindow{parent},
-      dataVec_{kColumnsInArray_},
+      pPlotSettings_{ps},
+      dataVec_{pPlotSettings_->getNumOfColumns()},
       vecPtrMltplPlot_{},
-      timeVec_{},
-      listColumnNames_{}
+      timeVec_{}
 {
     createMenu();
-    readSettings();
+
+    QRect storedRect{pPlotSettings_->getWindowGeometry()};
+    if(storedRect.isValid()) {
+        this->setGeometry(storedRect);
+    } else { // тут стандартные настройки если в .ini некорректные значения или пусто
+        const QRect availableGeometry = QApplication::desktop()->availableGeometry(this);
+        resize(availableGeometry.width() / 2, availableGeometry.height() / 2);
+        move((availableGeometry.width() - this->width()) / 2,
+        (availableGeometry.height() - this->height()) / 2);
+    }
+
     createToolBar();
     createCentralWidget();
 }
 
 MainWindow::~MainWindow()
 {
-    saveSettings();
+    pPlotSettings_->storeWindowGeometry(this->geometry());
 }
 
 void MainWindow::createMenu()
@@ -89,7 +96,6 @@ void MainWindow::createCentralWidget()
     scrAr->setWidget(pSplit_);
     setCentralWidget(scrAr);
     scrAr->setWidgetResizable(true);
-
 }
 
 //---------------------Slots-------------------------------------
@@ -136,8 +142,8 @@ void MainWindow::openFile()
 
 void MainWindow::cleanData()                            //файл закрывается сразу в parseFile
 {
-    for (int i = 0; i < kColumnsInArray_; ++i) {
-        dataVec_[i].clear();
+    for (auto &i : dataVec_) {
+        i.clear();
     }
 
     vecPtrMltplPlot_.clear();
@@ -149,7 +155,7 @@ void MainWindow::cleanData()                            //файл закрыв�
 void MainWindow::addPlot()
 {
     std::unique_ptr<MultiplePlot> tmp {
-        new MultiplePlot(timeVec_, dataVec_, listColumnNames_, this)
+        new MultiplePlot(timeVec_, dataVec_, pPlotSettings_->getlistColumnNames(), this)
     };
     vecPtrMltplPlot_.push_back(std::move(tmp));
     //синхронизация оси X

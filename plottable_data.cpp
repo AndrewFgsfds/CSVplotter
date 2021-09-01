@@ -1,6 +1,13 @@
-#include "main_window.h"
+#include "plottable_data.h"
 
-bool MainWindow::parseFile(const QString& fileName)
+PlottableData::PlottableData(PlotterSettings *ps) :
+    pPlotSettings_{ps},
+    dataVec_{pPlotSettings_->getNumOfColumns()},
+    timeVec_{}
+{
+}
+
+bool PlottableData::getDataFromFile(const QString& fileName)
 {
     QFile inFile{fileName};
     if (false == inFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -23,4 +30,11 @@ bool MainWindow::parseFile(const QString& fileName)
     }
     inFile.close();
     return true;
+}
+
+void PlottableData::cleanData()
+{
+    for (auto &i : dataVec_) {
+        i.clear();
+    }
 }
