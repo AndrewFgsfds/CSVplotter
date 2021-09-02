@@ -16,20 +16,22 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    csv_settings.cpp \
     main.cpp \
     main_window.cpp \
     multiple_plot.cpp \
     parse_csv.cpp \
     plottable_data.cpp \
-    plotter_settings.cpp \
-    qcustomplot.cpp
+    qcustomplot.cpp \
+    window_settings.cpp
 
 HEADERS += \
+    csv_settings.h \
     main_window.h \
     multiple_plot.h \
     plottable_data.h \
-    plotter_settings.h \
-    qcustomplot.h
+    qcustomplot.h \
+    window_settings.h
 
 FORMS +=
 

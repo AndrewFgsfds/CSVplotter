@@ -7,16 +7,17 @@
 #include <iostream>
 #include <QDebug>
 
-MainWindow::MainWindow(PlotterSettings *ps, QWidget *parent)
+MainWindow::MainWindow(CsvSettings *ps, QWidget *parent)
     : QMainWindow{parent},
       pPlotSettings_{ps},
+      windowSettings_{},
       dataVec_{pPlotSettings_->getNumOfColumns()},
       vecPtrMltplPlot_{},
       timeVec_{}
 {
     createMenu();
 
-    QRect storedRect{pPlotSettings_->getWindowGeometry()};
+    QRect storedRect{windowSettings_.getWindowGeometry()};
     if(storedRect.isValid()) {
         this->setGeometry(storedRect);
     } else { // тут стандартные настройки если в .ini некорректные значения или пусто
@@ -32,7 +33,7 @@ MainWindow::MainWindow(PlotterSettings *ps, QWidget *parent)
 
 MainWindow::~MainWindow()
 {
-    pPlotSettings_->storeWindowGeometry(this->geometry());
+    windowSettings_.storeWindowGeometry(this->geometry());
 }
 
 void MainWindow::createMenu()
@@ -124,12 +125,11 @@ void MainWindow::updateCursor(int index)
 
 void MainWindow::openFile()
 {
-    cleanData();                                                //очищаю перед открытием, в случае повторного открытия файла
-    QString fileName = QFileDialog::getOpenFileName (           //тут утечка памяти, надо переделать на создание QFileDialog()
+    cleanData();                                            //очищаю перед открытием, в случае повторного открытия файла
+    QString fileName = QFileDialog::getOpenFileName (       //тут утечка памяти, надо переделать на создание QFileDialog()
                 this, "Open File",
-                "./",               //relative path
-                "csv (*.csv)"); //filtering .csv files only
-    //qDebug() << fileName  << "\n";
+                "./",                                       //relative path
+                "csv (*.csv)");                             //filtering .csv files only
     if (!fileName.isEmpty())
         statusBar()->showMessage(fileName);
     if (parseFile(fileName)) {

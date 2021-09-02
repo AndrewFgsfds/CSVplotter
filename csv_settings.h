@@ -1,5 +1,5 @@
-#ifndef PLOTTERSETTINGS_H
-#define PLOTTERSETTINGS_H
+#ifndef CSVSETTINGS_H
+#define CSVSETTINGS_H
 #include <QSettings>
 #include <QRect>
 #include <QApplication>
@@ -8,15 +8,11 @@
 //seetings.ini для настроек внешнего вида
 //и передаваемый извне csvFilename
 
-class PlotterSettings
+class CsvSettings
 {
 public:
-    explicit PlotterSettings(const QString& csvFilename,
-                             const QString& screenFilename = "settings.ini");
-    virtual ~PlotterSettings();
-
-    QRect getWindowGeometry() const;
-    void storeWindowGeometry(const QRect&);
+    explicit CsvSettings(const QString& csvFilename);
+    virtual ~CsvSettings();
 
     int getNumOfColumns() const {return numOfColumns_;}
     void storeCsvSettings();
@@ -25,8 +21,7 @@ public:
 private:
     int numOfColumns_;
     QSettings csvSettings_;
-    QSettings screenSettings_;
     QStringList columnNamesList_;
 };
 
-#endif // PLOTTERSETTINGS_H
+#endif // CSVSETTINGS_H

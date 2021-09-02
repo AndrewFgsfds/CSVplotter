@@ -2,7 +2,8 @@
 #define MAINWINDOW_H
 #include "qcustomplot.h"
 #include "multiple_plot.h"
-#include "plotter_settings.h"
+#include "window_settings.h"
+#include "csv_settings.h"
 #include "plottable_data.h"
 
 #include <QMainWindow>
@@ -18,7 +19,7 @@ class MainWindow : public QMainWindow
     Q_OBJECT
 
 public:
-    MainWindow(PlotterSettings *ps, QWidget *parent = nullptr);
+    MainWindow(CsvSettings *ps, QWidget *parent = nullptr);
     ~MainWindow();
 
 public slots:
@@ -40,7 +41,8 @@ private:
     void refreshPlots();
     bool parseFile(const QString&);
 
-    PlotterSettings *pPlotSettings_;
+    CsvSettings *pPlotSettings_;
+    WindowSettings windowSettings_;
     QVBoxLayout *pQlayout_ = nullptr;
     QSplitter *pSplit_ = nullptr;
     QToolBar *pTopToolBar_ = nullptr;

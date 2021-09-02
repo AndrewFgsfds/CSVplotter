@@ -1,6 +1,6 @@
 #include "plottable_data.h"
 
-PlottableData::PlottableData(PlotterSettings *ps) :
+PlottableData::PlottableData(CsvSettings *ps) :
     pPlotSettings_{ps},
     dataVec_{pPlotSettings_->getNumOfColumns()},
     timeVec_{}

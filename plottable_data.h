@@ -2,18 +2,18 @@
 #define PLOTTABLEDATA_H
 #include <QVector>
 #include <QList>
-#include "plotter_settings.h"
+#include "csv_settings.h"
 #include <QTextStream>
 
 
 class PlottableData
 {
 public:
-    explicit PlottableData(PlotterSettings *ps);
+    explicit PlottableData(CsvSettings *ps);
     bool getDataFromFile(const QString& fileName);
     void cleanData();
 private:
-    PlotterSettings *pPlotSettings_;
+    CsvSettings *pPlotSettings_;
 
     QVector<QVector<double>> dataVec_;
     QVector<double> timeVec_;
