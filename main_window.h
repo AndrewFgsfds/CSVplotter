@@ -8,18 +8,14 @@
 
 #include <QMainWindow>
 #include <QVBoxLayout>
-#include <vector>
-#include <memory>
-
-
-
+#include <QSharedPointer>
 
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
 
 public:
-    MainWindow(CsvSettings *ps, QWidget *parent = nullptr);
+    MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
 public slots:
@@ -39,17 +35,16 @@ private:
     void createToolBar();
     void createCentralWidget();
     void refreshPlots();
-    bool parseFile(const QString&);
 
-    CsvSettings *pPlotSettings_;
-    WindowSettings windowSettings_;
+    QSharedPointer<WindowSettings> spWindowSettings_ = nullptr;
+    QSharedPointer<CsvSettings> spCsvSettings_ = nullptr;
+    QSharedPointer<PlottableData> spPlotData_ = nullptr;
+
     QVBoxLayout *pQlayout_ = nullptr;
     QSplitter *pSplit_ = nullptr;
     QToolBar *pTopToolBar_ = nullptr;
     QWidget *centralWidget_ = nullptr;
 
-    QVector<QVector<double>> dataVec_;
-    std::vector<std::unique_ptr<MultiplePlot>> vecPtrMltplPlot_;
-    QVector<double> timeVec_;
+    QVector<QSharedPointer<MultiplePlot>> vecPtrMltplPlot_;
 };
 #endif // MAINWINDOW_H

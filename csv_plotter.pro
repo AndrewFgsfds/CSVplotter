@@ -20,7 +20,6 @@ SOURCES += \
     main.cpp \
     main_window.cpp \
     multiple_plot.cpp \
-    parse_csv.cpp \
     plottable_data.cpp \
     qcustomplot.cpp \
     window_settings.cpp

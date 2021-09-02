@@ -1,8 +1,8 @@
 #include "plottable_data.h"
 
 PlottableData::PlottableData(CsvSettings *ps) :
-    pPlotSettings_{ps},
-    dataVec_{pPlotSettings_->getNumOfColumns()},
+    pCsvSettings_{ps},
+    dataVec_{pCsvSettings_->getNumOfColumns()},
     timeVec_{}
 {
 }
@@ -19,7 +19,7 @@ bool PlottableData::getDataFromFile(const QString& fileName)
         stringlist.pop_back(); // избавляюсь от первода строки
         int counter{0}; // для контроля за уходом за границу вектора
         for (QString ent : stringlist) {
-            if (counter < pPlotSettings_->getNumOfColumns()) {
+            if (counter < pCsvSettings_->getNumOfColumns()) {
                 dataVec_[counter].push_back(ent.toDouble());
             }
             ++counter;
@@ -37,4 +37,5 @@ void PlottableData::cleanData()
     for (auto &i : dataVec_) {
         i.clear();
     }
+    timeVec_.clear();
 }

@@ -2,9 +2,9 @@
 #include <iostream>
 
 
-CsvSettings::CsvSettings(const QString& csvfilename) :
+CsvSettings::CsvSettings() :
     numOfColumns_{0},
-    csvSettings_{csvfilename, QSettings::IniFormat},
+    csvSettings_{QString("test.ini"), QSettings::IniFormat},
     columnNamesList_{}
 {
     storeCsvSettings(); //раскомментировать чтобы заполнить настройки в первый раз
@@ -28,10 +28,10 @@ void CsvSettings::storeCsvSettings()
 {
     csvSettings_.clear();
     csvSettings_.beginGroup("Const");
-    csvSettings_.setValue("num_of_columns", 20);
+    csvSettings_.setValue("num_of_columns", 60);
     csvSettings_.endGroup();
     csvSettings_.beginGroup("Values");
-    for (int i = 0; i < 20; ++i) {
+    for (int i = 0; i < 60; ++i) {
         QString tmpName{"Val"};
         if (i < 10) {
             tmpName += "0";

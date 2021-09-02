@@ -5,19 +5,16 @@
 
 
 #include <iostream>
-#include <QDebug>
 
-MainWindow::MainWindow(CsvSettings *ps, QWidget *parent)
-    : QMainWindow{parent},
-      pPlotSettings_{ps},
-      windowSettings_{},
-      dataVec_{pPlotSettings_->getNumOfColumns()},
-      vecPtrMltplPlot_{},
-      timeVec_{}
+MainWindow::MainWindow(QWidget *parent) :
+    QMainWindow{parent},
+    vecPtrMltplPlot_{}
 {
+
     createMenu();
 
-    QRect storedRect{windowSettings_.getWindowGeometry()};
+    spWindowSettings_ = QSharedPointer<WindowSettings>(new WindowSettings());
+    QRect storedRect{spWindowSettings_.get()->getWindowGeometry()};
     if(storedRect.isValid()) {
         this->setGeometry(storedRect);
     } else { // тут стандартные настройки если в .ini некорректные значения или пусто
@@ -29,11 +26,14 @@ MainWindow::MainWindow(CsvSettings *ps, QWidget *parent)
 
     createToolBar();
     createCentralWidget();
+
+    spCsvSettings_ = QSharedPointer<CsvSettings>(new CsvSettings());
+    spPlotData_ = QSharedPointer<PlottableData>(new PlottableData(spCsvSettings_.get()));
 }
 
 MainWindow::~MainWindow()
 {
-    windowSettings_.storeWindowGeometry(this->geometry());
+    spWindowSettings_.get()->storeWindowGeometry(this->geometry());
 }
 
 void MainWindow::createMenu()
@@ -132,7 +132,7 @@ void MainWindow::openFile()
                 "csv (*.csv)");                             //filtering .csv files only
     if (!fileName.isEmpty())
         statusBar()->showMessage(fileName);
-    if (parseFile(fileName)) {
+    if (spPlotData_.get()->getDataFromFile(fileName)) {
         addPlot();
         statusBar()->showMessage("Success!");
     } else {
@@ -142,22 +142,16 @@ void MainWindow::openFile()
 
 void MainWindow::cleanData()                            //файл закрывается сразу в parseFile
 {
-    for (auto &i : dataVec_) {
-        i.clear();
-    }
-
+    spPlotData_.get()->cleanData();
     vecPtrMltplPlot_.clear();
-    timeVec_.clear();
     pSplit_->refresh();
     //pSplit_->setMinimumHeight(500*vecpQstmPlot_.size());
 }
 
 void MainWindow::addPlot()
 {
-    std::unique_ptr<MultiplePlot> tmp {
-        new MultiplePlot(timeVec_, dataVec_, pPlotSettings_->getlistColumnNames(), this)
-    };
-    vecPtrMltplPlot_.push_back(std::move(tmp));
+    vecPtrMltplPlot_.push_back(QSharedPointer<MultiplePlot>(
+            new MultiplePlot(spPlotData_.get(), this)));
     //синхронизация оси X
     connect(vecPtrMltplPlot_.back().get(),
             &MultiplePlot::axisXRangeChanged,

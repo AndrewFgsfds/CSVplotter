@@ -11,7 +11,7 @@
 class CsvSettings
 {
 public:
-    explicit CsvSettings(const QString& csvFilename);
+    explicit CsvSettings();
     virtual ~CsvSettings();
 
     int getNumOfColumns() const {return numOfColumns_;}

@@ -6,14 +6,10 @@ const QList<QColor> MultiplePlot::kColors {
     Qt::darkCyan,   Qt::yellow, Qt::magenta
 };
 
-MultiplePlot::MultiplePlot(const QVector<double> &timeVec,
-                           const QVector<QVector<double>> &dataVec,
-                           const QStringList &listColumnNames,
+MultiplePlot::MultiplePlot(PlottableData *pd,
                            QWidget *parent) :
     QWidget{parent},
-    timeVec_{timeVec},
-    dataVec_{dataVec},
-    listColumnNames_{listColumnNames}
+    pPlotData_{pd}
 {
     pMainLayout_ = new QHBoxLayout();
     pPlot_ = new QCustomPlot(this);
@@ -49,7 +45,8 @@ void MultiplePlot::createRightWidget()
     QWidget *rightWidget{new QWidget(this)};
     rightWidget->setMaximumWidth(150);
     QVBoxLayout *pSubLayout{new QVBoxLayout(rightWidget)};
-    QStringListModel *model{new QStringListModel(listColumnNames_, this)};
+    QStringListModel *model{new QStringListModel(pPlotData_->getListColumnNames(),
+                                                 this)};
     poListView_ = new QListView(this);
     poListView_->setModel(model);
     poListView_->setSelectionMode(QAbstractItemView::MultiSelection);
@@ -103,7 +100,7 @@ void MultiplePlot::drawCursor(int index) {
         tmpOut << pPlot_->graph()->data()->at(index)->key << "\n";
 
         for (int i = 0; i < pPlot_->graphCount(); ++i) {
-            tmpOut << pPlot_->graph(i)->name() << " "
+            tmpOut << pPlot_->graph(i)->name() << " = "
                    << pPlot_->graph(i)->data()->at(index)->value
                    << " \n";
         }
@@ -149,18 +146,21 @@ void MultiplePlot::plotSelected()
                         &QCPAbstractPlottable::selectionChanged), //! потому что не стоит перегружать сигналы https://stackoverflow.com/questions/16794695/connecting-overloaded-signals-and-slots-in-qt-5
                 this, &MultiplePlot::dataSelected);
 
-        pPlot_->graph(nPlot)->setData(timeVec_, dataVec_[index]);
-        double tmpMinValue{*std::min_element(dataVec_[index].begin(),
-                                             dataVec_[index].end())};
-        double tmpMaxValue{*std::max_element(dataVec_[index].begin(),
-                                             dataVec_[index].end())};
+        pPlot_->graph(nPlot)->setData(pPlotData_->getTimeVec(),
+                                      pPlotData_->getDataVec()[index]);
+        double tmpMinValue{*std::min_element(
+                pPlotData_->getDataVec()[index].begin(),
+                pPlotData_->getDataVec()[index].end())};
+        double tmpMaxValue{*std::max_element(
+                pPlotData_->getDataVec()[index].begin(),
+                pPlotData_->getDataVec()[index].end())};
         if (tmpMinValue < minValue)
             minValue = tmpMinValue;
         if (tmpMaxValue > maxValue)
             maxValue = tmpMaxValue;
         ++nPlot;
     }
-    pPlot_->xAxis->setRange(0, dataVec_[0].size());
+    pPlot_->xAxis->setRange(0, pPlotData_->getDataVec()[0].size());
     pPlot_->yAxis->setRange(minValue, maxValue);
     pPlot_->replot();
 

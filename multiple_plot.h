@@ -1,19 +1,17 @@
 #ifndef MULTIPLEPLOT_H
 #define MULTIPLEPLOT_H
 
+#include "qcustomplot.h"
+#include "plottable_data.h"
 #include <QObject>
 #include <QWidget>
-#include "qcustomplot.h"
-
 
 class MultiplePlot : public QWidget
 {
     Q_OBJECT
 
 public:
-    explicit MultiplePlot(const QVector<double> &timeVec_,
-                          const QVector<QVector<double>> &dataVec_,
-                          const QStringList &listColumnNames_,
+    explicit MultiplePlot(PlottableData *pd,
                           QWidget *parent = nullptr);
 
     //при обновлении одного из графиков обновляю ось X всех
@@ -39,9 +37,7 @@ private slots:
 
 private:
     void createRightWidget();
-    const QVector<double> &timeVec_;
-    const QVector<QVector<double>> &dataVec_;
-    const QStringList &listColumnNames_;
+    PlottableData *pPlotData_;
 
     int selectedIndex_ = 0;
 
