@@ -10,9 +10,9 @@ MainWindow::MainWindow(QWidget *parent) :
     QMainWindow{parent},
     vecPtrMltplPlot_{}
 {
-
     createMenu();
-
+    createToolBar();
+    createCentralWidget();
     spWindowSettings_ = QSharedPointer<WindowSettings>(new WindowSettings());
     QRect storedRect{spWindowSettings_.get()->getWindowGeometry()};
     if(storedRect.isValid()) {
@@ -24,10 +24,12 @@ MainWindow::MainWindow(QWidget *parent) :
         (availableGeometry.height() - this->height()) / 2);
     }
 
-    createToolBar();
-    createCentralWidget();
-
     spCsvSettings_ = QSharedPointer<CsvSettings>(new CsvSettings());
+    if(!spCsvSettings_.get()->isValid()) {
+        QMessageBox msgBox;
+        msgBox.setText("please check .ini file");
+        msgBox.exec();
+    }
     spPlotData_ = QSharedPointer<PlottableData>(new PlottableData(spCsvSettings_.get()));
 }
 
@@ -136,6 +138,7 @@ void MainWindow::openFile()
         addPlot();
         statusBar()->showMessage("Success!");
     } else {
+        spPlotData_.get()->cleanData();
         statusBar()->showMessage("Fail!");
     }
 }

@@ -1,5 +1,3 @@
-add reading from .ini file
-replace all constants to .ini
 max min plot constraints
 add check if settings are valid
-
+add bitset plot

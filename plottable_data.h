@@ -17,11 +17,11 @@ public:
     //interface with multiple plot
     const QVector<double>& getTimeVec() const {return timeVec_;}
     const QVector<QVector<double>>& getDataVec() const {return dataVec_;}
-    const QStringList& getListColumnNames() const {return pCsvSettings_->getlistColumnNames();}
+    const QStringList& getListColumnNames() const {return plotableNames;}
 
 private:
     CsvSettings *pCsvSettings_;
-
+    QStringList plotableNames;
     QVector<QVector<double>> dataVec_;
     QVector<double> timeVec_;
 };
