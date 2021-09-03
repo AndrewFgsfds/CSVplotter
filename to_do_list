@@ -1,3 +1,4 @@
 max min plot constraints
 add check if settings are valid
 add bitset plot
+rescale Yaxis when X scaled

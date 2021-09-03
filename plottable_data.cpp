@@ -1,15 +1,20 @@
 #include "plottable_data.h"
+#include <iostream>
+
 
 PlottableData::PlottableData(CsvSettings *ps) :
     pCsvSettings_{ps},
-    plotableNames{},
+    plotableNames_{},
     dataVec_{},
-    timeVec_{}
+    timeVec_{},
+    plotableMu_{}
 {
     int cntNotIgnore{0};
-    for(int i = 0; i < pCsvSettings_->getlistColumnNames().size(); ++i) {
+    for(int i = 0; i < pCsvSettings_->getColumnNamesList().size(); ++i) {
         if (!pCsvSettings_->getIgnoreVec().at(i)) {
-            plotableNames.push_back(pCsvSettings_->getlistColumnNames().at(i));
+            plotableNames_.push_back(pCsvSettings_->getColumnNamesList().at(i));
+            plotableMu_.push_back(pCsvSettings_->getMeusreUnitsList().at(i));
+            std::cout << plotableMu_.last().toStdString();
             ++cntNotIgnore;
         }
     }
@@ -30,7 +35,7 @@ bool PlottableData::getDataFromFile(const QString& fileName)
         auto strIt{stringlist.begin()};
         for(int i = 0; i < pCsvSettings_->getIgnoreVec().size(); ++i) {
             double tmpValue{};
-            if (strIt != stringlist.end()) { //заполняю нулями отсуствующие занчения
+            if (strIt != stringlist.end()) { //заполняю нулями отсуствующие значения
                 tmpValue = strIt->toDouble();
                 ++strIt;
             } else {
