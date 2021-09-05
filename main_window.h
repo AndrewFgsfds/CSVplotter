@@ -5,6 +5,7 @@
 #include "window_settings.h"
 #include "csv_settings.h"
 #include "plottable_data.h"
+#include "settings_widget.h"
 
 #include <QMainWindow>
 #include <QVBoxLayout>
@@ -29,7 +30,7 @@ private slots:
     void cleanData();               //реально только чищу вектора, файл закрывается сразу в parseFile
     void addPlot();
     void removePlot();
-
+    void openSettings();
 private:
     void createMenu();
     void createToolBar();

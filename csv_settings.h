@@ -11,6 +11,14 @@ public:
     explicit CsvSettings(QObject *parent = nullptr);
     ~CsvSettings() override;
 
+    enum columns {
+        kName = 0,
+        kScale,
+        kIsIgnore,
+        kIsBitset,
+        kMesureUnit
+    };
+
     QVariant headerData(int section, Qt::Orientation orientation,
                         int role = Qt::DisplayRole) const override;
 
@@ -40,15 +48,21 @@ public:
     bool isValid();
     int getNumOfRows() const {return numOfRows_;}
     void SaveSettings(const QString &fileName);
-
-    enum columns {
-        kName = 0,
-        kScale,
-        kIsIgnore,
-        kIsBitset,
-        kMesureUnit
-    };
-
+    QString getRowName(int RowNumber) {
+        return csvSettingsVec_.value(columns::kName).value(RowNumber).toString();
+    }
+    double getRowScale(int RowNumber) {
+        return csvSettingsVec_.value(columns::kScale).value(RowNumber).toDouble();
+    }
+    bool isRowIgnored(int RowNumber) {
+        return csvSettingsVec_.value(columns::kIsIgnore).value(RowNumber).toBool();
+    }
+    bool isRowBitset(int RowNumber) {
+        return csvSettingsVec_.value(columns::kIsBitset).value(RowNumber).toBool();
+    }
+    QString getRowMU(int RowNumber) {
+        return csvSettingsVec_.value(columns::kMesureUnit).value(RowNumber).toString();
+    }
 
 private:
     void applyDefaultSettings();
