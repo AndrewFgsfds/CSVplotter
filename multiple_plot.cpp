@@ -85,13 +85,6 @@ void MultiplePlot::drawCursor(int index) {
         if (!pPlotTextBlock_) {
             pPlotTextBlock_ = new QCPTextElement(pPlot_, "", 10);
         }
-        //pPlotTextBlock_->setBrush(Qt::white);
-        //pPlotTextBlock_->setPositionAlignment(Qt::AlignTop|Qt::AlignLeft);
-        //pPlotTextBlock_->position->setType(QCPItemPosition::ptAxisRectRatio);
-        //pPlotTextBlock_->position->setCoords(0.5, 0); // place position at center/top of axis rect
-        //pPlotTextBlock_->setText("Text Item Demo");
-        //pPlotTextBlock_->setFont(QFont(font().family(), 10)); // make font a bit larger
-        //pPlotTextBlock_->setPen(QPen(Qt::black)); // show black border around text
         pPlot_->axisRect()->insetLayout()->addElement(pPlotTextBlock_,
                                                       Qt::AlignLeft
                                                       | Qt::AlignTop);
@@ -100,8 +93,10 @@ void MultiplePlot::drawCursor(int index) {
         tmpOut << pPlot_->graph()->data()->at(index)->key << "\n";
 
         for (int i = 0; i < pPlot_->graphCount(); ++i) {
-            tmpOut << pPlot_->graph(i)->name() << " = "
+            tmpOut << pPlot_->graph(i)->name()
+                   << " = "
                    << pPlot_->graph(i)->data()->at(index)->value
+
                    << " \n";
         }
         pPlotTextBlock_->setText(tmpText);

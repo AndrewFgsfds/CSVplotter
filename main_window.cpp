@@ -50,6 +50,12 @@ void MainWindow::createMenu()
     QAction* pQuitAct = pFileMenu->addAction("Quit");
     connect(pQuitAct, &QAction::triggered, this, &MainWindow::close);
     pMenuBar->addMenu(pFileMenu);
+    QMenu *pSettingsMenu{new QMenu(this)};
+    pSettingsMenu->setTitle("Settings");
+    QAction* pSettings{pSettingsMenu->addAction("CSV settings")};
+    connect(pSettings, &QAction::triggered, this, &MainWindow::openSettings);
+    pMenuBar->addMenu(pSettingsMenu);
+
     this->layout()->setMenuBar(pMenuBar);
     this->statusBar()->setVisible(true);
 }
@@ -178,4 +184,12 @@ void MainWindow::removePlot()
     }
     pSplit_->refresh();
     pSplit_->setMinimumHeight(300*vecPtrMltplPlot_.size());
+}
+
+void MainWindow::openSettings()
+{
+    cleanData();
+    SettingsWidget *settingsW = new SettingsWidget(spCsvSettings_.get());
+    settingsW->show();
+    settingsW->setAttribute(Qt::WA_DeleteOnClose, true);
 }

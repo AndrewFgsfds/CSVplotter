@@ -1,23 +1,28 @@
 #include "plottable_data.h"
+#include <iostream>
+
 
 PlottableData::PlottableData(CsvSettings *ps) :
     pCsvSettings_{ps},
-    plotableNames{},
+    plotableNames_{},
     dataVec_{},
-    timeVec_{}
+    timeVec_{},
+    plotableMu_{}
 {
-    int cntNotIgnore{0};
-    for(int i = 0; i < pCsvSettings_->getlistColumnNames().size(); ++i) {
-        if (!pCsvSettings_->getIgnoreVec().at(i)) {
-            plotableNames.push_back(pCsvSettings_->getlistColumnNames().at(i));
-            ++cntNotIgnore;
-        }
-    }
-    dataVec_.resize(cntNotIgnore);
 }
 
 bool PlottableData::getDataFromFile(const QString& fileName)
 {
+    int cntNotIgnore{0};
+    for(int i = 0; i < pCsvSettings_->getNumOfRows(); ++i) {
+        if (!pCsvSettings_->isRowIgnored(i)) {
+            plotableNames_.push_back(pCsvSettings_->getRowName(i));
+            plotableMu_.push_back(pCsvSettings_->getRowMU(i));
+            std::cout << plotableMu_.last().toStdString();
+            ++cntNotIgnore;
+        }
+    }
+    dataVec_.resize(cntNotIgnore);
     QFile inFile{fileName};
     if (false == inFile.open(QIODevice::ReadOnly | QIODevice::Text)) {
         return false;
@@ -28,18 +33,18 @@ bool PlottableData::getDataFromFile(const QString& fileName)
         //stringlist.pop_back(); // избавляюсь от первода строки
         int counter{0};
         auto strIt{stringlist.begin()};
-        for(int i = 0; i < pCsvSettings_->getIgnoreVec().size(); ++i) {
+        for(int i = 0; i < pCsvSettings_->getNumOfRows(); ++i) {
             double tmpValue{};
-            if (strIt != stringlist.end()) { //заполняю нулями отсуствующие занчения
+            if (strIt != stringlist.end()) { //заполняю нулями отсуствующие значения
                 tmpValue = strIt->toDouble();
                 ++strIt;
             } else {
                 tmpValue = 0;
             }
 
-            if (!pCsvSettings_->getIgnoreVec().at(i)) {
+            if (!pCsvSettings_->isRowIgnored(i)) {
                 dataVec_[counter].push_back(tmpValue
-                        * pCsvSettings_->getScalesVec().at(i));
+                        * pCsvSettings_->getRowScale(i));
                 ++counter;
             }
         }
@@ -56,5 +61,7 @@ void PlottableData::cleanData()
     for (auto &i : dataVec_) {
         i.clear();
     }
+    plotableNames_.clear();
+    plotableMu_.clear();
     timeVec_.clear();
 }
