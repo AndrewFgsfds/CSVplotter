@@ -29,7 +29,6 @@ MainWindow::MainWindow(QWidget *parent) :
         QMessageBox msgBox;
         msgBox.setText("please check .ini file");
         msgBox.exec();
-        this->close();
     }
     spPlotData_ = QSharedPointer<PlottableData>(new PlottableData(spCsvSettings_.get()));
 }

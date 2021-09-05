@@ -2,69 +2,212 @@
 #include <iostream>
 
 
-CsvSettings::CsvSettings() :
-    numOfColumns_{0},
-    csvSettings_{QString("test.ini"), QSettings::IniFormat},
-    columnNamesList_{},
-    scalesVec_{},
-    isIgnoreVec_{},
-    isBitsetVec_{},
-    measureUnitsList_{}
+CsvSettings::CsvSettings(QObject *parent) :
+    QAbstractTableModel(parent),
+    numOfRows_{0},
+    kSettingsFileName{"settings/test.ini"},
+    kSettingsNames_{"Name", "Scale", "IsIgnore", "IsBitset", "MesureUnit"},
+    csvSettingsVec_{kSettingsNames_.size()}
 {
-    storeCsvSettings(); //раскомментировать чтобы заполнить настройки в первый раз
-    numOfColumns_ = csvSettings_.value("const/num_of_columns").toInt();
-    csvSettings_.beginGroup("values");
-    QStringList tmpList_ = csvSettings_.childGroups();
-    for (auto s : tmpList_) {
-        csvSettings_.beginGroup(s);
-        columnNamesList_.push_back(csvSettings_.value("Name").toString());
-        scalesVec_.push_back(csvSettings_.value("Scale", 1).toDouble());
-        isIgnoreVec_.push_back(csvSettings_.value("IsIgnore", 0).toBool());
-        isBitsetVec_.push_back(csvSettings_.value("IsBitset", 0).toBool());
-        measureUnitsList_.push_back(csvSettings_.value("MesureUnit").toString());
-        csvSettings_.endGroup();
+    if (!QFileInfo::exists(kSettingsFileName)) {
+        applyDefaultSettings();
+    } else {
+        QSettings csvQSettings{kSettingsFileName, QSettings::IniFormat};
+
+        numOfRows_ = csvQSettings.value("const/num_of_rows").toInt();
+        csvQSettings.beginGroup("values");
+        QStringList tmpList_ = csvQSettings.childGroups();
+        for (auto s : tmpList_) {
+            csvQSettings.beginGroup(s);
+            for (int i = 0; i < csvSettingsVec_.size(); ++i) {
+                csvSettingsVec_[i].push_back(csvQSettings.value(kSettingsNames_.at(i)));
+            }
+            csvQSettings.endGroup();
+        }
+        csvQSettings.endGroup();
     }
-    csvSettings_.endGroup();
 }
 
 CsvSettings::~CsvSettings()
 {
-    //csvSettings_.sync(); пока не реализую форму правки настроек
+    SaveSettings("settings/test.ini");
 }
 
 bool CsvSettings::isValid()
 {
-    if(!numOfColumns_)
+    if(!numOfRows_)
         return false;
-    if((numOfColumns_ == columnNamesList_.size())
-            && (numOfColumns_ == scalesVec_.size())
-            && (numOfColumns_ == isIgnoreVec_.size())
-            && (numOfColumns_ == isBitsetVec_.size())) {
+    if(numOfRows_ == csvSettingsVec_.value(columns::kName).size()) {
         return true;
-    } else {
-        return false;
     }
+    return false;
+
 }
 
-void CsvSettings::storeCsvSettings()
+QVariant CsvSettings::headerData(int section, Qt::Orientation orientation, int role) const
 {
-    csvSettings_.clear();
-    csvSettings_.beginGroup("Const");
-    csvSettings_.setValue("num_of_columns", 5);
-    csvSettings_.endGroup();
-    csvSettings_.beginGroup("Values");
-    for (int i = 0; i < 5; ++i) {
+    if (role == Qt::DisplayRole) {
+        if ((orientation == Qt::Horizontal)
+                && (section < kSettingsNames_.size())) {
+            return kSettingsNames_.at(section);
+        }
+        if (orientation == Qt::Vertical) {
+            return QString(char('A' + section));
+        }
+    }
+    return QVariant();
+}
+
+bool CsvSettings::setHeaderData(int section, Qt::Orientation orientation, const QVariant &value, int role)
+{
+    if (value != headerData(section, orientation, role)) {
+        // FIXME: Implement me!
+        emit headerDataChanged(orientation, section, section);
+        return true;
+    }
+    return false;
+}
+
+
+int CsvSettings::rowCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+    return csvSettingsVec_[columns::kName].size();
+}
+
+int CsvSettings::columnCount(const QModelIndex &parent) const
+{
+    if (parent.isValid())
+        return 0;
+    return csvSettingsVec_.size();
+}
+
+QVariant CsvSettings::data(const QModelIndex &index, int role) const
+{
+    if (!index.isValid())
+        return QVariant();
+    if(index.row() < csvSettingsVec_[columns::kName].size()
+            && index.column() < csvSettingsVec_.size()
+            && role == Qt::DisplayRole) {
+        return csvSettingsVec_.value(index.column()).value(index.row());
+    }
+    // FIXME: Implement me!
+    return QVariant();
+}
+
+bool CsvSettings::setData(const QModelIndex &index, const QVariant &value, int role)
+{
+    if(index.row() > csvSettingsVec_[columns::kName].size()
+            || index.column() > csvSettingsVec_.size()) {
+        return false;
+    }
+
+    if (data(index, role) != value) {
+        if(index.column() == columns::kName) {
+            csvSettingsVec_[index.column()][index.row()] = value.toString();
+        }
+        if(index.column() == columns::kScale) {
+            csvSettingsVec_[index.column()][index.row()] = value.toDouble();
+        }
+        if(index.column() == columns::kIsIgnore) {
+            csvSettingsVec_[index.column()][index.row()] = value.toBool();
+        }
+        if(index.column() == columns::kIsBitset) {
+            csvSettingsVec_[index.column()][index.row()] = value.toBool();
+        }
+        if(index.column() == columns::kMesureUnit) {
+            csvSettingsVec_[index.column()][index.row()] = value.toString();
+        }
+
+        emit dataChanged(index, index, QVector<int>() << role);
+        return true;
+    }
+    return false;
+}
+
+Qt::ItemFlags CsvSettings::flags(const QModelIndex &index) const
+{
+    if (!index.isValid())
+        return Qt::NoItemFlags;
+    //return flags(index);
+    return Qt::ItemIsEditable
+            | Qt::ItemIsSelectable
+            | Qt::ItemIsUserCheckable
+            |Qt::ItemIsEnabled; // FIXME: Implement me!
+}
+
+bool CsvSettings::insertRows(int row, int count, const QModelIndex &parent)
+{
+    if (row >= 0 && row <= rowCount()) {
+        beginInsertRows(parent, row, row + count - 1);
+        for (int i = row; i < row + count; ++i) {
+            csvSettingsVec_[columns::kName].insert(i, QString("DefaultVal")
+                                                  + QString().number(i));
+            csvSettingsVec_[columns::kScale].insert(i, 1);
+            csvSettingsVec_[columns::kIsIgnore].insert(i, false);
+            csvSettingsVec_[columns::kIsBitset].insert(i, false);
+            csvSettingsVec_[columns::kMesureUnit].insert(i, QString("t.u."));
+        }
+        endInsertRows();
+        numOfRows_ = csvSettingsVec_.value(kName).size();
+        return true;
+    }
+    return false;
+}
+
+bool CsvSettings::removeRows(int row, int count, const QModelIndex &parent)
+{
+    if(row >= 0 && row < rowCount() && row + count <= rowCount()) {
+        beginRemoveRows(parent, row, row + count - 1);
+        for (auto &vec : csvSettingsVec_) {
+            vec.remove(row, count);
+        }
+        endRemoveRows();
+        numOfRows_ = csvSettingsVec_.value(kName).size();
+        return true;
+    }
+    return false;
+}
+
+void CsvSettings::SaveSettings(const QString &fileName)
+{
+    QSettings csvQSettings{fileName, QSettings::IniFormat};
+    csvQSettings.clear();
+    csvQSettings.beginGroup("Const");
+    csvQSettings.setValue("num_of_rows", numOfRows_);
+    csvQSettings.endGroup();
+    csvQSettings.beginGroup("Values");
+    for (int i = 0; i < csvSettingsVec_.value(0).size(); ++i) {
         QString tmpName{"Val"};
         if (i < 10) {
             tmpName += "0";
         }
-        csvSettings_.beginGroup(tmpName + QString::number(i));
-        csvSettings_.setValue("Name", "val" + QString::number(i));
-        csvSettings_.setValue("Scale", QString::number(1));
-        csvSettings_.setValue("IsIgnore", QString::number(false));
-        csvSettings_.setValue("IsBitset", QString::number(false));
-        csvSettings_.setValue("MesureUnit", "t.u.");
-        csvSettings_.endGroup();
+        csvQSettings.beginGroup(tmpName + QString::number(i));
+        csvQSettings.setValue(kSettingsNames_.value(columns::kName),
+                              csvSettingsVec_.value(columns::kName).value(i));
+        csvQSettings.setValue(kSettingsNames_.value(columns::kScale),
+                              csvSettingsVec_.value(columns::kScale).value(i));
+        csvQSettings.setValue(kSettingsNames_.value(columns::kIsIgnore),
+                              csvSettingsVec_.value(columns::kIsIgnore).value(i));
+        csvQSettings.setValue(kSettingsNames_.value(columns::kIsBitset),
+                              csvSettingsVec_.value(columns::kIsBitset).value(i));
+        csvQSettings.setValue(kSettingsNames_.value(columns::kMesureUnit),
+                              csvSettingsVec_.value(columns::kMesureUnit).value(i));
+        csvQSettings.endGroup();
     }
-    csvSettings_.endGroup();
+    csvQSettings.endGroup();
+}
+
+void CsvSettings::applyDefaultSettings()
+{
+    numOfRows_ = 4;
+    for (int i = 0; i < numOfRows_; ++i) {
+        csvSettingsVec_[columns::kName].push_back(QString("DefaultVal")
+                                                  + QString().number(i));
+        csvSettingsVec_[columns::kScale].push_back(1);
+        csvSettingsVec_[columns::kIsIgnore].push_back(false);
+        csvSettingsVec_[columns::kIsBitset].push_back(false);
+        csvSettingsVec_[columns::kMesureUnit].push_back(QString("t.u."));
+    }
 }

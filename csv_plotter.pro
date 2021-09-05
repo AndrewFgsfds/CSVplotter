@@ -22,6 +22,7 @@ SOURCES += \
     multiple_plot.cpp \
     plottable_data.cpp \
     qcustomplot.cpp \
+    settings_widget.cpp \
     window_settings.cpp
 
 HEADERS += \
@@ -30,9 +31,11 @@ HEADERS += \
     multiple_plot.h \
     plottable_data.h \
     qcustomplot.h \
+    settings_widget.h \
     window_settings.h
 
-FORMS +=
+FORMS += \
+    settings_widget.ui
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin
