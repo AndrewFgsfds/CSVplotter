@@ -79,8 +79,6 @@ void MultiplePlot::drawCursor(int index) {
         double tmpCordY_2{pPlot_->yAxis->range().upper};
         pPlotCursor_->point1->setCoords(tmpCordX, tmpCordY_1);
         pPlotCursor_->point2->setCoords(tmpCordX, tmpCordY_2);
-        std::cout << "in draw cursor" << std::endl;
-
         //вывожу все значения по выбранному индексу:
         if (!pPlotTextBlock_) {
             pPlotTextBlock_ = new QCPTextElement(pPlot_, "", 10);
@@ -179,7 +177,6 @@ void MultiplePlot::dataSelected(const QCPDataSelection &selection)
     if(selection.dataRangeCount()) {
         index = selection.dataRange().begin();
     }
-    std::cout << "in selected data slot. Index is: " << index << std::endl;
     emit itemSelected(index);
 }
 

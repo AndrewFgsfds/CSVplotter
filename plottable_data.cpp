@@ -14,11 +14,10 @@ PlottableData::PlottableData(CsvSettings *ps) :
 bool PlottableData::getDataFromFile(const QString& fileName)
 {
     int cntNotIgnore{0};
-    for(int i = 0; i < pCsvSettings_->getNumOfRows(); ++i) {
+    for(int i = 0; i < pCsvSettings_->getNumOfCsvColumns(); ++i) {
         if (!pCsvSettings_->isRowIgnored(i)) {
             plotableNames_.push_back(pCsvSettings_->getRowName(i));
             plotableMu_.push_back(pCsvSettings_->getRowMU(i));
-            std::cout << plotableMu_.last().toStdString();
             ++cntNotIgnore;
         }
     }
@@ -33,7 +32,7 @@ bool PlottableData::getDataFromFile(const QString& fileName)
         //stringlist.pop_back(); // избавляюсь от первода строки
         int counter{0};
         auto strIt{stringlist.begin()};
-        for(int i = 0; i < pCsvSettings_->getNumOfRows(); ++i) {
+        for(int i = 0; i < pCsvSettings_->getNumOfCsvColumns(); ++i) {
             double tmpValue{};
             if (strIt != stringlist.end()) { //заполняю нулями отсуствующие значения
                 tmpValue = strIt->toDouble();

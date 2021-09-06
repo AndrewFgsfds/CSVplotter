@@ -26,6 +26,12 @@ CsvSettings::CsvSettings(QObject *parent) :
         }
         csvQSettings.endGroup();
     }
+    if (!isValid()) {
+        applyDefaultSettings();
+        QMessageBox msgBox;
+        msgBox.setText(".ini file is broken please check settings");
+        msgBox.exec();
+    }
 }
 
 CsvSettings::~CsvSettings()
@@ -35,13 +41,17 @@ CsvSettings::~CsvSettings()
 
 bool CsvSettings::isValid()
 {
-    if(!numOfRows_)
-        return false;
-    if(numOfRows_ == csvSettingsVec_.value(columns::kName).size()) {
-        return true;
+    if(numOfRows_ && numOfRows_ == csvSettingsVec_.value(0).size()) {
+        for (auto i : csvSettingsVec_) {
+            for (auto j : i) {
+                if (j.isNull()) {
+                    return false;
+                }
+            }
+        }
+    return true;
     }
     return false;
-
 }
 
 QVariant CsvSettings::headerData(int section, Qt::Orientation orientation, int role) const
@@ -51,8 +61,17 @@ QVariant CsvSettings::headerData(int section, Qt::Orientation orientation, int r
                 && (section < kSettingsNames_.size())) {
             return kSettingsNames_.at(section);
         }
+        //номера строк как столбцы в excel после Z следует AA, после AZ - BA
         if (orientation == Qt::Vertical) {
-            return QString(char('A' + section));
+            if (section < ('Z' - 'A' + 1)) {
+                return QString(char('A' + section));
+            } else if (section < 2 * ('Z' - 'A' + 1)){
+                return QString("A") + QString(char(section - ('Z' - 'A' + 1) + 'A'));
+            } else if (section < 3 * ('Z' - 'A' + 1)) {
+                return QString("B") + QString(char(section - 2 * ('Z' - 'A' + 1) + 'A'));
+            } else {
+                return QString("C") + QString(char(section - 3 * ('Z' - 'A' + 1) + 'A'));
+            }
         }
     }
     return QVariant();
@@ -202,6 +221,9 @@ void CsvSettings::SaveSettings(const QString &fileName)
 void CsvSettings::applyDefaultSettings()
 {
     numOfRows_ = 4;
+    for (auto &i : csvSettingsVec_) {
+        i.clear();
+    }
     for (int i = 0; i < numOfRows_; ++i) {
         csvSettingsVec_[columns::kName].push_back(QString("DefaultVal")
                                                   + QString().number(i));

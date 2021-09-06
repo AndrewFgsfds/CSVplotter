@@ -21,15 +21,10 @@ MainWindow::MainWindow(QWidget *parent) :
         const QRect availableGeometry = QApplication::desktop()->availableGeometry(this);
         resize(availableGeometry.width() / 2, availableGeometry.height() / 2);
         move((availableGeometry.width() - this->width()) / 2,
-        (availableGeometry.height() - this->height()) / 2);
+             (availableGeometry.height() - this->height()) / 2);
     }
 
     spCsvSettings_ = QSharedPointer<CsvSettings>(new CsvSettings());
-    if(!spCsvSettings_.get()->isValid()) {
-        QMessageBox msgBox;
-        msgBox.setText("please check .ini file");
-        msgBox.exec();
-    }
     spPlotData_ = QSharedPointer<PlottableData>(new PlottableData(spCsvSettings_.get()));
 }
 
@@ -119,7 +114,6 @@ void MainWindow::updateAllRanges(const QCPRange &newRange)
            it.get()->updateRangeAxisX(newRange);
         }
     }
-    //std::cout << "in mainwindow update ranges slot: " << newRange.lower << " " << newRange.upper << std::endl;
 }
 
 void MainWindow::updateCursor(int index)
@@ -127,7 +121,6 @@ void MainWindow::updateCursor(int index)
     for(auto &it : vecPtrMltplPlot_) {
         it.get()->drawCursor(index);
     }
-    //std::cout << "in main update cursor. index: " << index << std::endl;
 }
 
 

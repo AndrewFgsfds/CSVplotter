@@ -9,13 +9,11 @@ SettingsWidget::SettingsWidget(CsvSettings *pSettings, QWidget *parent) :
 {
     ui->setupUi(this);
     ui->csvSettingsView->setModel(pSettings_);
-    ui->leRowsNumber->setText("11");
-    std::cout << "in Widget constructor" << std::endl;
+    ui->leRowsNumber->setText(QString().number(pSettings_->rowCount()));
 }
 
 SettingsWidget::~SettingsWidget()
 {
-    std::cout << "in Widget destructor" << std::endl;
     delete ui;
 }
 
@@ -29,11 +27,11 @@ void SettingsWidget::on_pbApplyRows_clicked()
         ui->leRowsNumber->setText("0");
         newNum = 0;
     }
-    if(newNum > pSettings_->getNumOfRows()) {
-        pSettings_->insertRows(pSettings_->getNumOfRows(),
-                               newNum - pSettings_->getNumOfRows());
-    } else if (newNum < pSettings_->getNumOfRows()) {
+    if(newNum > pSettings_->getNumOfCsvColumns()) {
+        pSettings_->insertRows(pSettings_->getNumOfCsvColumns(),
+                               newNum - pSettings_->getNumOfCsvColumns());
+    } else if (newNum < pSettings_->getNumOfCsvColumns()) {
         pSettings_->removeRows(newNum,
-                               pSettings_->getNumOfRows() - newNum);
+                               pSettings_->getNumOfCsvColumns() - newNum);
     }
 }

@@ -3,6 +3,7 @@
 #include <QSettings>
 #include <QFileInfo>
 #include <QAbstractTableModel>
+#include <QMessageBox>
 
 class CsvSettings : public QAbstractTableModel
 {
@@ -46,7 +47,7 @@ public:
                     const QModelIndex &parent = QModelIndex()) override;
 
     bool isValid();
-    int getNumOfRows() const {return numOfRows_;}
+    int getNumOfCsvColumns() const {return numOfRows_;} //количество столбцов в csv файле равно количеству строк в настройках
     void SaveSettings(const QString &fileName);
     QString getRowName(int RowNumber) {
         return csvSettingsVec_.value(columns::kName).value(RowNumber).toString();
