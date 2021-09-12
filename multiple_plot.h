@@ -5,6 +5,8 @@
 #include "plottable_data.h"
 #include <QObject>
 #include <QWidget>
+#include <cfloat>
+
 
 class MultiplePlot : public QWidget
 {

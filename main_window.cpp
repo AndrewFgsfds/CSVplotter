@@ -110,9 +110,9 @@ void MainWindow::updateAllRanges(const QCPRange &newRange)
     //контроль отправки нового сигнала на реализации xAxis->setRange()
 
     for(auto &it : vecPtrMltplPlot_) {
-        if (it.get()->getRange() != newRange) {
+        //if (it.get()->getRange() != newRange) {
            it.get()->updateRangeAxisX(newRange);
-        }
+        //}
     }
 }
 

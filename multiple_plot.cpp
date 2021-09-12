@@ -64,6 +64,19 @@ void MultiplePlot::updateRangeAxisX(const QCPRange &newRange)
     //if (pPlot_->xAxis->range() != newRange) {
     pPlot_->xAxis->setRange(newRange); //проверку от цикличного изменения осуществляет библиотека
     //}
+    //auto rescale Y axis depending on visible values
+    double minValue{DBL_MAX};
+    double maxValue{DBL_MIN};
+    for (int i = 0; i < pPlot_->graphCount(); ++i) {
+        for(auto it = pPlot_->graph(i)->data()->findBegin(newRange.lower);
+            it < pPlot_->graph(i)->data()->findBegin(newRange.upper); ++it) {
+            if (it->value < minValue)
+                minValue = it->value;
+            if (it->value > maxValue)
+                maxValue = it->value;
+        }
+    }
+    pPlot_->yAxis->setRange(minValue, maxValue);
     pPlot_->replot();
 }
 
