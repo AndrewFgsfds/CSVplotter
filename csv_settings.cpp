@@ -111,7 +111,6 @@ QVariant CsvSettings::data(const QModelIndex &index, int role) const
             && role == Qt::DisplayRole) {
         return csvSettingsVec_.value(index.column()).value(index.row());
     }
-    // FIXME: Implement me!
     return QVariant();
 }
 
@@ -149,11 +148,10 @@ Qt::ItemFlags CsvSettings::flags(const QModelIndex &index) const
 {
     if (!index.isValid())
         return Qt::NoItemFlags;
-    //return flags(index);
     return Qt::ItemIsEditable
             | Qt::ItemIsSelectable
             | Qt::ItemIsUserCheckable
-            |Qt::ItemIsEnabled; // FIXME: Implement me!
+            |Qt::ItemIsEnabled;
 }
 
 bool CsvSettings::insertRows(int row, int count, const QModelIndex &parent)

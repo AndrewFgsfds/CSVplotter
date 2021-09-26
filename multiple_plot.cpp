@@ -69,7 +69,7 @@ void MultiplePlot::updateRangeAxisX(const QCPRange &newRange)
     double maxValue{DBL_MIN};
     for (int i = 0; i < pPlot_->graphCount(); ++i) {
         for(auto it = pPlot_->graph(i)->data()->findBegin(newRange.lower);
-            it < pPlot_->graph(i)->data()->findBegin(newRange.upper); ++it) {
+            it <= pPlot_->graph(i)->data()->findBegin(newRange.upper); ++it) {
             if (it->value < minValue)
                 minValue = it->value;
             if (it->value > maxValue)
