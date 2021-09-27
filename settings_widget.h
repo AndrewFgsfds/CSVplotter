@@ -17,6 +17,9 @@ public:
 
 private slots:
     void on_pbApplyRows_clicked();
+    void on_pbSaveButton_clicked();
+
+    void on_pbLoadButton_clicked();
 
 private:
     Ui::SettingsWidget *ui;

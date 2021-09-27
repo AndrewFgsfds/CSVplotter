@@ -5,26 +5,14 @@
 CsvSettings::CsvSettings(QObject *parent) :
     QAbstractTableModel(parent),
     numOfRows_{0},
-    kSettingsFileName{"settings/test.ini"},
+    kSettingsFileName{"settings/default.ini"},
     kSettingsNames_{"Name", "Scale", "IsIgnore", "IsBitset", "MesureUnit"},
     csvSettingsVec_{kSettingsNames_.size()}
 {
     if (!QFileInfo::exists(kSettingsFileName)) {
         applyDefaultSettings();
     } else {
-        QSettings csvQSettings{kSettingsFileName, QSettings::IniFormat};
-
-        numOfRows_ = csvQSettings.value("const/num_of_rows").toInt();
-        csvQSettings.beginGroup("values");
-        QStringList tmpList_ = csvQSettings.childGroups();
-        for (auto s : tmpList_) {
-            csvQSettings.beginGroup(s);
-            for (int i = 0; i < csvSettingsVec_.size(); ++i) {
-                csvSettingsVec_[i].push_back(csvQSettings.value(kSettingsNames_.at(i)));
-            }
-            csvQSettings.endGroup();
-        }
-        csvQSettings.endGroup();
+        LoadSettings(kSettingsFileName);
     }
     if (!isValid()) {
         applyDefaultSettings();
@@ -36,9 +24,12 @@ CsvSettings::CsvSettings(QObject *parent) :
 
 CsvSettings::~CsvSettings()
 {
-    SaveSettings("settings/test.ini");
+    SaveSettings("settings/default.ini");
 }
 
+/*!
+ * проверка, нет ли пустых значений в векторе, а значит пропусков в файле настроек
+*/
 bool CsvSettings::isValid()
 {
     if(numOfRows_ && numOfRows_ == csvSettingsVec_.value(0).size()) {
@@ -216,11 +207,30 @@ void CsvSettings::SaveSettings(const QString &fileName)
     csvQSettings.endGroup();
 }
 
+void CsvSettings::LoadSettings(const QString &fileName)
+{
+    for (auto &vec : csvSettingsVec_) {
+        vec.clear();
+    }
+    QSettings csvQSettings{fileName, QSettings::IniFormat};
+    numOfRows_ = csvQSettings.value("const/num_of_rows").toInt();
+    csvQSettings.beginGroup("values");
+    QStringList tmpList_ = csvQSettings.childGroups();
+    for (auto s : tmpList_) {
+        csvQSettings.beginGroup(s);
+        for (int i = 0; i < csvSettingsVec_.size(); ++i) {
+            csvSettingsVec_[i].push_back(csvQSettings.value(kSettingsNames_.at(i)));
+        }
+        csvQSettings.endGroup();
+    }
+    csvQSettings.endGroup();
+}
+
 void CsvSettings::applyDefaultSettings()
 {
     numOfRows_ = 4;
-    for (auto &i : csvSettingsVec_) {
-        i.clear();
+    for (auto &vec : csvSettingsVec_) {
+        vec.clear();
     }
     for (int i = 0; i < numOfRows_; ++i) {
         csvSettingsVec_[columns::kName].push_back(QString("DefaultVal")

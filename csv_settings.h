@@ -49,6 +49,7 @@ public:
     bool isValid();
     int getNumOfCsvColumns() const {return numOfRows_;} //количество столбцов в csv файле равно количеству строк в настройках
     void SaveSettings(const QString &fileName);
+    void LoadSettings(const QString &fileName);
     QString getRowName(int RowNumber) {
         return csvSettingsVec_.value(columns::kName).value(RowNumber).toString();
     }
